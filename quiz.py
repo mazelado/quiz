@@ -7,15 +7,26 @@ Created on 5/9/19 7:55 AM
 
 
 """
-from typing import Any, List
-
+import click
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from typing import Any, List
 
 from db_declarative import Question, FalseAnswer, Base, Quiz
 
 
-def main() -> None:
+@click.command()
+@click.option('--add/--remove', '-a/-r')
+@click.option('--question', nargs=2, type=(str, str))
+@click.option('--false', '-f', nargs=-1)
+def edit_row(option, question, false_answers):
+    click.echo('option=%s\nquestion=%s\ncorrect answer=%s\nfalse answer(s)=%s' % option, question[0], question[1],
+               false_answers)
+
+
+@click.command()
+@click.option('--print', '-p')
+def main(option, question):
     """
     Demonstrates use of Question and Quiz classes.
 
@@ -44,3 +55,8 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
+    # TODO: Read command line arguments
+    # TODO: Add CLI to add questions
+    # TODO: Add CLI to print a quiz
+    # TODO: Add CLI to delete a question

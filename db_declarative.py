@@ -7,7 +7,7 @@ Created on 5/9/19 2:29 PM
 """
 import random
 from string import ascii_uppercase
-from typing import List
+from typing import List, Any
 
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy import create_engine

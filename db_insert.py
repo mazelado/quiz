@@ -8,11 +8,11 @@ Created on 5/9/19 2:35 PM
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import db_declarative
+from db_declarative import Base, Question, FalseAnswer
 import quiz
 
 engine = create_engine('sqlite:///quiz.db')
-db_declarative.Base.metadata.bind = engine
+Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -32,10 +32,10 @@ questions.append(quiz.Question('Meiosis generates zygotes', 'False', ['True']))
 questions.append(quiz.Question('Chromosomes line up along the cell\'s equator during metaphase.', 'True', ['False']))
 
 for q in questions:
-    new_question = db_declarative.Question(question=q.getQuestion(), true_answer=q.getTrueAnswer())
+    new_question = Question(question=q.getQuestion(), true_answer=q.getTrueAnswer())
     session.add(new_question)
     session.commit()
     for f in q.getFalseAnswers():
-        new_false_answer = db_declarative.FalseAnswer(answer=f, question=new_question)
+        new_false_answer = FalseAnswer(answer=f, question=new_question)
         session.add(new_false_answer)
         session.commit()
