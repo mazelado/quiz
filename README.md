@@ -7,8 +7,9 @@ Languages/Frameworks used:
 
 To Do:
 * Create a CLI - _In process_
-* Add ability to add questions through an interface
+  * Add ability to add and remove questions through an interface
 * Add ability to take a quiz and see score instead of just printing one
 * Add ability to see which topics need more studying
   * Add section/topic information to question table
-* Create a web front-end (Flask?)
+* Create a GUI (QT)
+* Create a web front-end (Flask)
