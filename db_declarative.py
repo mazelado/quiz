@@ -24,10 +24,10 @@ class QuestionTable(Base):
     id = Column(Integer, primary_key=True)
     question = Column(String(250), nullable=False)
     true_answer = Column(String(250), nullable=False)
-    false_answer = relationship("FalseAnswers", cascade='all, delete-orphan')
+    false_answers = relationship("FalseAnswersTable", cascade='all, delete-orphan')
 
 
-class FalseAnswerTable(Base):
+class FalseAnswersTable(Base):
     """
     This is a class to define the FalseAnswer database table.
 
@@ -37,6 +37,7 @@ class FalseAnswerTable(Base):
     id = Column(Integer, primary_key=True)
     answer = Column(String(250))
     question_id = Column(Integer, ForeignKey('question.id'))
+    question = relationship("QuestionTable")
 
 
 engine = create_engine('sqlite:///quiz.db')

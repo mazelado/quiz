@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 
 from class_declarative import Question, Quiz
-from db_declarative import QuestionTable, FalseAnswerTable, Base
+from db_declarative import QuestionTable, FalseAnswersTable, Base
 
 
 def start_session() -> sessionmaker:
@@ -53,7 +53,7 @@ def add_question(question,  # type: str
     session.add(new_row)
     session.commit()
     for f in new_question.getFalseAnswers():
-        new_false_answer = FalseAnswerTable(answer=f, question=new_row)
+        new_false_answer = FalseAnswersTable(answer=f, question=new_row)
         session.add(new_false_answer)
         session.commit()
 
@@ -99,7 +99,7 @@ def print_quiz() -> None:
 
     for question_row in question_rows:  # type: Any
         false_answer_list = []  # type: List[str]
-        false_answer_rows = session.query(FalseAnswerTable).filter(FalseAnswerTable.question == question_row).all()
+        false_answer_rows = session.query(FalseAnswersTable).filter(FalseAnswersTable.question == question_row).all()
         for false_answer_row in false_answer_rows:  # type: str
             false_answer_list.append(false_answer_row.answer)
         all_questions.append(Question(question_row.question, question_row.true_answer, false_answer_list))
