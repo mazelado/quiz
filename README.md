@@ -1,11 +1,13 @@
 # Quiz
 Create and take quizzes. Questions and answers are shuffled each time. I created this to help my wife study for her grad school classes.
 
-Languages/Frameworks used:
+## Languages/Frameworks used:
 * Python
+  * argparse
+  * typing
 * SQLAlchemy
 
-To Do:
+## To Do:
 * Create a CLI - _In process_
   * Add ability to add and remove questions through an interface
 * Add ability to take a quiz and see score instead of just printing one
