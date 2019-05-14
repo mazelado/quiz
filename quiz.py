@@ -20,6 +20,11 @@ from db_declarative import QuestionTable, FalseAnswersTable, Base
 
 
 def start_session() -> sessionmaker:
+    """
+    Opens a database session.
+
+    :return: DB session
+    """
     engine = create_engine('sqlite:///quiz.db')
     Base.metadata.bind = engine
     DBSession = sessionmaker()
@@ -31,22 +36,31 @@ def start_session() -> sessionmaker:
 
 def end_session(session  # type: sessionmaker
                 ) -> bool:
+    """
+    Closes database session.
+
+    :param session: DB session
+    :return: True
+    """
+
     session.close()
+    return True
 
 
-def add_question(question,  # type: str
+def add_question(session,  # type: sessionmaker
+                 question,  # type: str
                  true_answer,  # type: str
                  false_answers  # type: List[str]
                  ) -> bool:
     """
     Adds a question to the database.
 
+    :param session: DB session
     :param question: text of question
     :param true_answer: text of true answer
     :param false_answers: list of text of false answers
     :return: True if database commit is successful
     """
-    session = start_session()
 
     new_question = Question(question, true_answer, false_answers)
     new_row = QuestionTable(question=new_question.getQuestion(), true_answer=new_question.getTrueAnswer())
@@ -57,14 +71,19 @@ def add_question(question,  # type: str
         session.add(new_false_answer)
         session.commit()
 
-    end_session(session)
-
     return True
 
 
-def remove_question(question  # type: str
+def remove_question(session,  # type: sessionmaker
+                    question  # type: str
                     ) -> bool:
-    session = start_session()
+    """
+    Removes a question from the database.
+
+    :param session: DB session
+    :param question: question to remove
+    :return: True if successful, False if not
+    """
 
     try:
         question_rows = session.query(QuestionTable).filter(QuestionTable.question == question).one()
@@ -80,19 +99,16 @@ def remove_question(question  # type: str
         session.delete(question_rows)
         session.commit()
 
-        # Are all false answers also deleted?
-
-        end_session(session)
         return True
 
 
-def print_quiz() -> None:
+def print_quiz(session) -> None:
     """
     Prints all questions in the form of a quiz.
 
-    :return: None
+    :param session: DB session
+    :return: True
     """
-    session = start_session()
 
     question_rows = session.query(QuestionTable).all()
     all_questions = []  # type: List[Any]
@@ -100,16 +116,14 @@ def print_quiz() -> None:
     for question_row in question_rows:  # type: Any
         false_answer_list = []  # type: List[str]
         false_answer_rows = session.query(FalseAnswersTable).filter(FalseAnswersTable.question == question_row).all()
-        for false_answer_row in false_answer_rows:  # type: str
+        for false_answer_row in false_answer_rows:  # type: FalseAnswersTable
             false_answer_list.append(false_answer_row.answer)
         all_questions.append(Question(question_row.question, question_row.true_answer, false_answer_list))
-
-    end_session(session)
 
     quiz = Quiz(all_questions)  # type: Quiz
     print(quiz)
 
-    return
+    return True
 
 
 def cli_arguments() -> None:
@@ -134,19 +148,23 @@ def cli_arguments() -> None:
         parser.print_help(sys.stderr)
         sys.exit(1)
 
+    session = start_session()
+
     # Process command line arguments add, remove, print
     if args.add:
-        if add_question(args.question, args.true_answer, args.false_answers):
+        if add_question(session, args.question, args.true_answer, args.false_answers):
             print('Question added successfully.')
         else:
             print('Unable to add question.')
     elif args.remove:
-        if remove_question(args.question):
+        if remove_question(session, args.question):
             print('Question removed successfully.')
         else:
             print('Unable to remove question.')
     elif args.print:
-        print_quiz()
+        print_quiz(session)
+
+    end_session(session)
 
     return
 
