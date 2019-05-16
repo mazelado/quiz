@@ -1,6 +1,9 @@
 # Quiz
 Create and take quizzes. Questions and answers are shuffled each time. I created this to help my wife study for her grad school classes.
 
+## Status:
+Alpha - Still in development
+
 ## Usage:
 ```
 usage: quiz.py [-h] [-a | -r | -p] [-q QUESTION] [-t TRUE_ANSWER]
@@ -25,9 +28,3 @@ optional arguments:
   * [argparse](https://docs.python.org/3/library/argparse.html)
   * [typing](https://docs.python.org/3/library/typing.html)
 * [SQLAlchemy](https://www.sqlalchemy.org/)
-
-## To Do:
-* Add ability to take a quiz and see score instead of just printing one
-* Add ability to see which topics need more studying (_In process_)
-* Create a GUI (QT)
-* Create a web front-end (Flask)
