@@ -23,12 +23,13 @@ class Question(object):
                  false_answers,  # type: List[str]
                  ) -> None:
         """
-        Args:
-            class_name: name of class
-            chapter: title of chapter
-            question: text of question
-            true_answer: text of the correct answer to the question
-            false_answers: list of text of incorrect answers to the question
+        Initializes Question class
+
+        :param class_name: name of class
+        :param chapter: title of chapter
+        :param question: text of question
+        :param true_answer: text of true answer
+        :param false_answers: list of text of incorrect answers
         """
         self.class_name = class_name  # type: str
         self.chapter = chapter  # type: str
@@ -37,38 +38,82 @@ class Question(object):
         self.false_answers = false_answers  # type: List[str]
 
     def get_class_name(self) -> str:
+        """
+        Returns class name
+
+        :return: text of class name
+        """
         return self.class_name
 
     def set_class_name(self,
                        new_class_name  # type: str
                        ) -> None:
+        """
+        Sets name of class, overwriting existing
+
+        :param new_class_name: text of new class name
+        :return: None
+        """
         self.class_name = new_class_name
         return None
 
     def get_chapter(self) -> str:
+        """
+        Returns chapter
+
+        :return: text of chapter
+        """
         return self.chapter
 
     def set_chapter(self,
                     new_chapter_name  # type: str
                     ) -> None:
+        """
+        Sets chapter, overwriting existing
+
+        :param new_chapter_name: text of new chapter
+        :return: None
+        """
         self.chapter = new_chapter_name
         return None
 
     def get_question(self) -> str:
+        """
+        Returns question
+
+        :return: text of question
+        """
         return self.question
 
     def set_question(self,
                      new_question  # type: str
                      ) -> None:
+        """
+        Sets question, overwriting existing
+
+        :param new_question: text of new question
+        :return: None
+        """
         self.question = new_question
         return None
 
     def get_true_answer(self) -> str:
+        """
+        Returns true answer
+
+        :return: text of true answer
+        """
         return self.true_answer
 
     def set_true_answer(self,
                         new_true_answer  # type: str
                         ) -> None:
+        """
+        Sets true answer, overwriting existing
+
+        :param new_true_answer: text of new true answer
+        :return: None
+        """
         self.true_answer = new_true_answer
         return None
 

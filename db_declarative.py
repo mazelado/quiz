@@ -21,7 +21,7 @@ class ClassTable(Base):
     """
     __tablename__ = 'class'
     id = Column(Integer, primary_key=True)
-    title = Column(String(250), nullable=False)
+    class_name = Column(String(250), nullable=False, unique=True)
     chapter = relationship("ChapterTable", cascade='all, delete-orphan')
 
 
@@ -34,9 +34,10 @@ class ChapterTable(Base):
     """
     __tablename__ = 'chapter'
     id = Column(Integer, primary_key=True)
-    class_id = Column(Integer, ForeignKey('chapter.id'))
-    chapter = Column(String(250), nullable=False)
+    class_id = Column(Integer, ForeignKey('class.id'))
+    chapter = Column(String(250), nullable=False, unique=True)
     question = relationship("QuestionTable", cascade='all, delete-orphan')
+    class_name = relationship('ClassTable')
 
 
 class QuestionTable(Base):
@@ -49,9 +50,10 @@ class QuestionTable(Base):
     __tablename__ = 'question'
     id = Column(Integer, primary_key=True)
     chapter_id = Column(Integer, ForeignKey('chapter.id'))
-    question = Column(String(250), nullable=False)
+    question = Column(String(250), nullable=False, unique=True)
     true_answer = Column(String(250), nullable=False)
     false_answers = relationship("FalseAnswersTable", cascade='all, delete-orphan')
+    chapter = relationship('ChapterTable')
 
 
 class FalseAnswersTable(Base):

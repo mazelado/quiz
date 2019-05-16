@@ -28,9 +28,6 @@ optional arguments:
 
 ## To Do:
 * Add ability to take a quiz and see score instead of just printing one
-* Add ability to see which topics need more studying
-  * Add a class table (e.g. Biology 1127) _In process_
-  * Add a section table that is a child of the class table (e.g. Chapter 1) _In process_
-  * Make the question table a child of the section table _In process_
+* Add ability to see which topics need more studying (_In process_)
 * Create a GUI (QT)
 * Create a web front-end (Flask)
