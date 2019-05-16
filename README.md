@@ -22,9 +22,9 @@ optional arguments:
 ```
 ## Languages/Frameworks used:
 * Python
-  * argparse
-  * typing
-* SQLAlchemy
+  * [argparse](https://docs.python.org/3/library/argparse.html)
+  * [typing](https://docs.python.org/3/library/typing.html)
+* [SQLAlchemy](https://www.sqlalchemy.org/)
 
 ## To Do:
 * Add ability to take a quiz and see score instead of just printing one
