@@ -16,55 +16,158 @@ class Question(object):
     """
 
     def __init__(self,
+                 class_name,  # type: str
+                 chapter,  # type: str
                  question,  # type: str
                  true_answer,  # type: str
                  false_answers,  # type: List[str]
                  ) -> None:
         """
         Args:
+            class_name: name of class
+            chapter: title of chapter
             question: text of question
             true_answer: text of the correct answer to the question
             false_answers: list of text of incorrect answers to the question
         """
+        self.class_name = class_name  # type: str
+        self.chapter = chapter  # type: str
         self.question = question  # type: str
         self.true_answer = true_answer  # type: str
         self.false_answers = false_answers  # type: List[str]
 
-    def getQuestion(self) -> str:
+    def get_class_name(self) -> str:
+        return self.class_name
+
+    def set_class_name(self,
+                       new_class_name  # type: str
+                       ) -> None:
+        self.class_name = new_class_name
+        return None
+
+    def get_chapter(self) -> str:
+        return self.chapter
+
+    def set_chapter(self,
+                    new_chapter_name  # type: str
+                    ) -> None:
+        self.chapter = new_chapter_name
+        return None
+
+    def get_question(self) -> str:
         return self.question
 
-    def getTrueAnswer(self) -> str:
+    def set_question(self,
+                     new_question  # type: str
+                     ) -> None:
+        self.question = new_question
+        return None
+
+    def get_true_answer(self) -> str:
         return self.true_answer
 
-    def getFalseAnswers(self) -> List[str]:
-        return self.false_answers
+    def set_true_answer(self,
+                        new_true_answer  # type: str
+                        ) -> None:
+        self.true_answer = new_true_answer
+        return None
 
-    def getAllAnswers(self) -> List[str]:
+    def get_false_answers(self,
+                          shuffle=False  # type: bool
+                          ) -> List[str]:
+        """
+        Returns false answers, optionally shuffling them into random order
+
+        :param shuffle: boolean True to shuffle false answers, False (default) to leave false answers unordered
+        :return: list of text of false answers
+        """
+        if shuffle:
+            return self.shuffle_answers(self.false_answers)
+        else:
+            return self.false_answers
+
+    def set_false_answers(self,
+                          new_false_answers  # type: List[str]
+                          ) -> None:
+        """
+        Sets false answers, overwriting existing
+
+        :param new_false_answers: list of text of new false answers
+        :return: None
+        """
+        self.false_answers = new_false_answers
+        return None
+
+    def add_false_answer(self,
+                         new_false_answer  # type: str
+                         ) -> None:
+        """
+        Adds a false answer
+
+        :param new_false_answer: text of false answer to add
+        :return: None
+        """
+        self.false_answers.append(new_false_answer)
+        return None
+
+    def remove_false_answer(self,
+                            false_answer_to_remove  # type: str
+                            ) -> bool:
+        """
+        Removes a false answer
+
+        :param false_answer_to_remove: text of false answer to remove
+        :return: True if successful, False if unsuccessful
+        """
+        if false_answer_to_remove in self.false_answers:
+            self.false_answers.remove(false_answer_to_remove)
+            return True
+        else:
+            return False
+
+    def get_all_answers(self,
+                        shuffle=False  # type: bool
+                        ) -> List[str]:
+        """
+        Returns true and false answers, optionally shuffling them into random order
+
+        :param shuffle: boolean True to shuffle, False (default) to leave unordered
+        :return: list of text of all answers
+        """
         r = [self.true_answer, *self.false_answers]  # type: List[str]
-        self.shuffleAnswers(r)
+        if shuffle:
+            self.shuffle_answers(r)
 
         return r
 
-    def shuffleAnswers(self,
-                       answers  # type: List[str]
-                       ) -> List[str]:
+    @staticmethod
+    def shuffle_answers(answers  # type: List[str]
+                        ) -> List[str]:
         """
-        Args:
-            answers: joined list of both true and false answers to the question
-        """
+        STATIC METHOD
+        Puts supplied answers into random order.
+        
+        :param answers: list of answers
+        :return: list of supplied answers in random order
+        """""
         if (len(answers) == 2) and ('True' in answers) and ('False' in answers):
-            answers.sort(reverse=True)  # Leave T/F answers unshuffled
+            answers.sort(reverse=True)  # Leave T/F answers ordered
         else:
             random.shuffle(answers)  # Shuffle all other answers
 
         return answers
 
     def __repr__(self) -> str:
-        all_answers = [self.true_answer, *self.false_answers]  # type: List[str]
-        self.shuffleAnswers(all_answers)
+        """
+        Displays question, true answer in first position, and false answers in second+ positions
 
+        :return: text of question and answers
+        """
         # Construct return string r
-        r = '%s\n' % self.question  # type: str
+        r = 'Class: ' + self.get_class_name() + '\n'
+        r += 'Chapter: ' + self.get_chapter() + '\n'
+        r += self.get_question() + '\n'  # type: str
+        all_answers = self.get_all_answers(False)  # type: List[str]
         for index, answer in enumerate(all_answers):  # type: int, str
             # Mark correct answer
             if answer == self.true_answer:
@@ -79,14 +182,17 @@ class Question(object):
 
 
 class Quiz(object):
-    """This is a class that is a collection of Question objects and additional methods to create a quiz."""
+    """
+    This is a class that is a collection of Question objects and additional methods to create a quiz.
+    """
 
     def __init__(self,
                  questions  # type: List[Any]
                  ) -> None:
         """
-        Args:
-            questions: list of Question objects
+        Initializes Quiz class
+
+        :param questions: list of selected Question objects
         """
         self.correct = 0  # type: int
         self.incorrect = 0  # type: int
@@ -94,17 +200,19 @@ class Quiz(object):
         random.shuffle(self.questions)
 
     def __repr__(self) -> str:
-        """Displays all questions in random order, with answers in random order
-        (except T/F)
+        """
+        Displays all questions in random order, with answers in random order (except T/F)
 
-        Returns:
-            text of all questions
+        :return: text of all questions
         """
         r = ''  # type: str
         for q_index, question in enumerate(self.questions):  # type: int, Question
-            r += str(q_index + 1) + '. ' + question.getQuestion() + '\n'
-            for a_index, answer in enumerate(question.getAllAnswers()):  # type: int, str
-                r += '    ' + ascii_uppercase[a_index] + '. ' + answer + '\n'
+            r = 'Class: ' + question.get_class_name() + '\n'  # type: str
+            r += 'Chapter: ' + question.get_chapter() + '\n\n'
+            r += str(q_index + 1) + '. ' + question.get_question() + '\n'
+            all_answers = question.get_all_answers()  # type: List[str]
+            for a_index, answer in enumerate(all_answers):  # type: int, str
+                r += ' ' * 4 + ascii_uppercase[a_index] + '. ' + answer + '\n'
             r += '\n'
 
         return r

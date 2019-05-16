@@ -63,10 +63,10 @@ def add_question(session,  # type: sessionmaker
     """
 
     new_question = Question(question, true_answer, false_answers)
-    new_row = QuestionTable(question=new_question.getQuestion(), true_answer=new_question.getTrueAnswer())
+    new_row = QuestionTable(question=new_question.get_question(), true_answer=new_question.get_true_answer())
     session.add(new_row)
     session.commit()
-    for f in new_question.getFalseAnswers():
+    for f in new_question.get_false_answers():
         new_false_answer = FalseAnswersTable(answer=f, question=new_row)
         session.add(new_false_answer)
         session.commit()
