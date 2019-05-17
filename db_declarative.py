@@ -22,7 +22,7 @@ class ClassTable(Base):
     __tablename__ = 'class'
     id = Column(Integer, primary_key=True)
     class_name = Column(String(250), nullable=False, unique=True)
-    chapter = relationship("ChapterTable", cascade='all, delete-orphan')
+    chapter = relationship("ChapterTable", back_populates='class_name', cascade='all, delete-orphan')
 
 
 class ChapterTable(Base):
@@ -36,8 +36,8 @@ class ChapterTable(Base):
     id = Column(Integer, primary_key=True)
     class_id = Column(Integer, ForeignKey('class.id'))
     chapter = Column(String(250), nullable=False, unique=True)
-    question = relationship("QuestionTable", cascade='all, delete-orphan')
-    class_name = relationship('ClassTable')
+    question = relationship("QuestionTable", back_populates='chapter', cascade='all, delete-orphan')
+    class_name = relationship('ClassTable', back_populates='chapter')
 
 
 class QuestionTable(Base):
@@ -52,8 +52,8 @@ class QuestionTable(Base):
     chapter_id = Column(Integer, ForeignKey('chapter.id'))
     question = Column(String(250), nullable=False, unique=True)
     true_answer = Column(String(250), nullable=False)
-    false_answers = relationship("FalseAnswersTable", cascade='all, delete-orphan')
-    chapter = relationship('ChapterTable')
+    false_answers = relationship("FalseAnswersTable", back_populates='question', cascade='all, delete-orphan')
+    chapter = relationship('ChapterTable', back_populates='question')
 
 
 class FalseAnswersTable(Base):
@@ -67,7 +67,7 @@ class FalseAnswersTable(Base):
     id = Column(Integer, primary_key=True)
     question_id = Column(Integer, ForeignKey('question.id'))
     answer = Column(String(250))
-    question = relationship("QuestionTable")
+    question = relationship("QuestionTable", back_populates='false_answers')
 
 
 engine = create_engine('sqlite:///quiz.db')

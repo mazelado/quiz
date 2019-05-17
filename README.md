@@ -6,8 +6,8 @@ Alpha - Still in development
 
 ## Usage:
 ```
-usage: quiz.py [-h] [-a | -r | -p] [-q QUESTION] [-t TRUE_ANSWER]
-               [-f FALSE_ANSWERS [FALSE_ANSWERS ...]]
+usage: quiz.py [-h] [-a | -r | -p] [-c CLASS] [-C CHAPTER] [-q QUESTION]
+               [-t TRUE_ANSWER] [-f FALSE_ANSWERS [FALSE_ANSWERS ...]]
 
 Create a quiz.
 
@@ -16,6 +16,10 @@ optional arguments:
   -a, --add             Add a new question
   -r, --remove          Remove an existing question
   -p, --print           Print all questions
+  -c CLASS, --class CLASS
+                        Class (enclosed in quotes)
+  -C CHAPTER, --chapter CHAPTER
+                        Chapter (enclosed in quotes)
   -q QUESTION, --question QUESTION
                         Question (enclosed in quotes)
   -t TRUE_ANSWER, --true_answer TRUE_ANSWER

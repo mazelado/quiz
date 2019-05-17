@@ -31,11 +31,11 @@ class Question(object):
         :param true_answer: text of true answer
         :param false_answers: list of text of incorrect answers
         """
-        self.class_name = class_name  # type: str
-        self.chapter = chapter  # type: str
-        self.question = question  # type: str
-        self.true_answer = true_answer  # type: str
-        self.false_answers = false_answers  # type: List[str]
+        self.set_class_name(class_name)
+        self.set_chapter(chapter)
+        self.set_question(question)
+        self.set_true_answer(true_answer)
+        self.set_false_answers(false_answers)
 
     def get_class_name(self) -> str:
         """
@@ -252,8 +252,8 @@ class Quiz(object):
         """
         r = ''  # type: str
         for q_index, question in enumerate(self.questions):  # type: int, Question
-            r = 'Class: ' + question.get_class_name() + '\n'  # type: str
-            r += 'Chapter: ' + question.get_chapter() + '\n\n'
+            r += 'Class: ' + question.get_class_name() + '\n'  # type: str
+            r += 'Chapter: ' + question.get_chapter() + '\n'
             r += str(q_index + 1) + '. ' + question.get_question() + '\n'
             all_answers = question.get_all_answers()  # type: List[str]
             for a_index, answer in enumerate(all_answers):  # type: int, str
