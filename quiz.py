@@ -80,7 +80,7 @@ def add_question(session,  # type: sessionmaker
         session.commit()
     except (IntegrityError, InvalidRequestError):  # UNIQUE constraint failed, already exists in table
         session.rollback()
-        new_class = session.query(ClassTable).filter(ClassTable.class_name == q.get_class_name()).one()
+        new_class = session.query(ClassTable).filter(ClassTable.class_name == new_question.get_class_name()).one()
 
     # Try to add new chapter, reuse if it exists
     new_chapter = ChapterTable(chapter=new_question.get_chapter(), class_name=new_class)
@@ -89,9 +89,10 @@ def add_question(session,  # type: sessionmaker
         session.commit()
     except (IntegrityError, InvalidRequestError):  # UNIQUE constraint failed, already exists in table
         session.rollback()
-        new_chapter = session.query(ChapterTable).filter(ChapterTable.chapter == q.get_chapter()).one()
+        new_chapter = session.query(ChapterTable).filter(ChapterTable.chapter == new_question.get_chapter()).one()
 
-    new_row = QuestionTable(question=new_question.get_question(), true_answer=q.get_true_answer(), chapter=new_chapter)
+    new_row = QuestionTable(question=new_question.get_question(), true_answer=new_question.get_true_answer(),
+                            chapter=new_chapter)
     session.add(new_row)
     session.commit()
     for f in new_question.get_false_answers():
@@ -112,6 +113,8 @@ def remove_question(session,  # type: sessionmaker
     :param question: question to remove
     :return: True if successful, False if not
     """
+
+    # TODO: Still doesn't remove class and chapter
 
     try:
         question_rows = session.query(QuestionTable).filter(QuestionTable.question == question).one()
@@ -169,7 +172,7 @@ def cli_arguments() -> None:
     group.add_argument('-a', '--add', action='store_true', help='Add a new question')
     group.add_argument('-r', '--remove', action='store_true', help='Remove an existing question')
     group.add_argument('-p', '--print', action='store_true', help='Print all questions')
-    parser.add_argument('-c', '--class', type=str, help='Class (enclosed in quotes)')
+    parser.add_argument('-c', '--class', type=str, dest='class_', help='Class (enclosed in quotes)')
     parser.add_argument('-C', '--chapter', type=str, help='Chapter (enclosed in quotes)')
     parser.add_argument('-q', '--question', type=str, help='Question (enclosed in quotes)')
     parser.add_argument('-t', '--true_answer', type=str, help='True answer (enclosed in quotes)')
