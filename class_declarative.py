@@ -31,144 +31,11 @@ class Question(object):
         :param true_answer: text of true answer
         :param false_answers: list of text of incorrect answers
         """
-        self.set_class_name(class_name)
-        self.set_chapter(chapter)
-        self.set_question(question)
-        self.set_true_answer(true_answer)
-        self.set_false_answers(false_answers)
-
-    def get_class_name(self) -> str:
-        """
-        Returns class name
-
-        :return: text of class name
-        """
-        return self.class_name
-
-    def set_class_name(self,
-                       new_class_name  # type: str
-                       ) -> None:
-        """
-        Sets name of class, overwriting existing
-
-        :param new_class_name: text of new class name
-        :return: None
-        """
-        self.class_name = new_class_name
-        return None
-
-    def get_chapter(self) -> str:
-        """
-        Returns chapter
-
-        :return: text of chapter
-        """
-        return self.chapter
-
-    def set_chapter(self,
-                    new_chapter_name  # type: str
-                    ) -> None:
-        """
-        Sets chapter, overwriting existing
-
-        :param new_chapter_name: text of new chapter
-        :return: None
-        """
-        self.chapter = new_chapter_name
-        return None
-
-    def get_question(self) -> str:
-        """
-        Returns question
-
-        :return: text of question
-        """
-        return self.question
-
-    def set_question(self,
-                     new_question  # type: str
-                     ) -> None:
-        """
-        Sets question, overwriting existing
-
-        :param new_question: text of new question
-        :return: None
-        """
-        self.question = new_question
-        return None
-
-    def get_true_answer(self) -> str:
-        """
-        Returns true answer
-
-        :return: text of true answer
-        """
-        return self.true_answer
-
-    def set_true_answer(self,
-                        new_true_answer  # type: str
-                        ) -> None:
-        """
-        Sets true answer, overwriting existing
-
-        :param new_true_answer: text of new true answer
-        :return: None
-        """
-        self.true_answer = new_true_answer
-        return None
-
-    def get_false_answers(self,
-                          shuffle=False  # type: bool
-                          ) -> List[str]:
-        """
-        Returns false answers, optionally shuffling them into random order
-
-        :param shuffle: boolean True to shuffle false answers, False (default) to leave false answers unordered
-        :return: list of text of false answers
-        """
-        if shuffle:
-            return self.shuffle_answers(self.false_answers)
-        else:
-            return self.false_answers
-
-    def set_false_answers(self,
-                          new_false_answers  # type: List[str]
-                          ) -> None:
-        """
-        Sets false answers, overwriting existing
-
-        :param new_false_answers: list of text of new false answers
-        :return: None
-        """
-        self.false_answers = new_false_answers
-        return None
-
-    def add_false_answer(self,
-                         new_false_answer  # type: str
-                         ) -> None:
-        """
-        Adds a false answer
-
-        :param new_false_answer: text of false answer to add
-        :return: None
-        """
-        self.false_answers.append(new_false_answer)
-        return None
-
-    def remove_false_answer(self,
-                            false_answer_to_remove  # type: str
-                            ) -> bool:
-        """
-        Removes a false answer
-
-        :param false_answer_to_remove: text of false answer to remove
-        :return: True if successful, False if unsuccessful
-        """
-        if false_answer_to_remove in self.false_answers:
-            self.false_answers.remove(false_answer_to_remove)
-            return True
-        else:
-            return False
+        self.class_name = class_name  # type: str
+        self.chapter = chapter  # type: str
+        self.question = question  # type: str
+        self.true_answer = true_answer  # type: str
+        self.false_answers = false_answers  # type: List[str]
 
     def get_all_answers(self,
                         shuffle=False  # type: bool
@@ -202,6 +69,37 @@ class Question(object):
 
         return answers
 
+    def get_correct_letter_answer(self) -> str:
+        """
+        Returns correct letter answer.
+
+        :return: String of correct letter answer
+        """
+        return ascii_uppercase[self.get_all_answers().index(self.true_answer)]
+
+    def is_correct_answer(self,
+                          answer  # type: str
+                          ) -> bool:
+        """
+        Checks if specified answer matches true answer
+
+        :param answer: string of specified answer
+        :return: True if supplied answer matches true answer, False if not
+        """
+        return answer == self.true_answer
+
+    def is_correct_letter_answer(self,
+                                 letter  # type: str
+                                 ) -> bool:
+        """
+        Checks specified letter answer against correct letter answer. Returns True if correct, False if incorrect.
+
+        :param letter: String of letter answered
+        :return: True if letter matches true answer, False if not
+        """
+        answer = self.get_all_answers()[ascii_uppercase.find(letter)]
+        return self.is_correct_answer(answer)
+
     def __repr__(self) -> str:
         """
         Displays question, true answer in first position, and false answers in second+ positions
@@ -209,9 +107,9 @@ class Question(object):
         :return: text of question and answers
         """
         # Construct return string r
-        r = 'Class: ' + self.get_class_name() + '\n'
-        r += 'Chapter: ' + self.get_chapter() + '\n'
-        r += self.get_question() + '\n'  # type: str
+        r = 'Class: {}\n'.format(self.class_name)  # type: str
+        r += 'Chapter: {}\n'.format(self.chapter)
+        r += '{}\n'.format(self.question + '\n')
         all_answers = self.get_all_answers(False)  # type: List[str]
         for index, answer in enumerate(all_answers):  # type: int, str
             # Mark correct answer
@@ -221,7 +119,7 @@ class Question(object):
                 r += '    '
 
             # Add letter and answer
-            r += ascii_uppercase[index] + '. ' + answer + '\n'
+            r += '{}. {}\n'.format(ascii_uppercase[index], answer)
 
         return r
 
@@ -244,6 +142,118 @@ class Quiz(object):
         self.questions = questions  # type: List[Any]
         random.shuffle(self.questions)
 
+    def select_question_subset(self,
+                               count  # type: int
+                               ) -> List[Any]:
+        """
+        Returns a subset of Question objects in a list. If count is larger than the number of questions available,
+        returns all questions.
+
+        :param count: Number of questions to return
+        :return: List of Question objects
+        """
+        random.shuffle(self.questions)
+        return self.questions[0:min(count, len(self.questions))]
+
+    @staticmethod
+    def ask_user_for_answer(question  # type: Question
+                            ) -> str:
+        """
+        Asks user to input an answer and sanitizes input
+
+        :param question: Question object to check valid answers
+        :return: string of answer
+        """
+        possible_answers = ascii_uppercase[0:len(question.false_answers)]
+        while True:
+            response = input('Answer: ').upper()
+            # Expecting a single letter, within group of possible answers
+            if (len(response) == 1) and (response in possible_answers):
+                return response
+            else:
+                print('Invalid answer. Try again.\n')
+
+    def show_current_results(self) -> str:
+        """
+        Returns string of current questions answered, % correct, and % incorrect
+
+        :return: String of results
+        """
+        answered = self.correct + self.incorrect  # type: int
+        pct_correct = round(self.correct / (self.correct + self.incorrect), 3) * 100  # tyoe: float
+        pct_incorrect = round(self.incorrect / (self.correct + self.incorrect), 3) * 100  # type: float
+        return '{} questions answered, {}% correct, {}% incorrect.'.format(answered, pct_correct, pct_incorrect)
+
+    @staticmethod
+    def ask_user_to_continue() -> bool:
+        """
+        STATIC METHOD
+        Asks user if they want to continue and returns boolean
+
+        :return: True if user wants to continue, False if user wants to stop
+        """
+        response = input('Continue? [YES/no]: ').upper()  # type: str
+        if ('Y' in response) or (response == ''):
+            return True
+        else:
+            return False
+
+    def take_quiz(self,
+                  ask_for_more=False,  # type: bool
+                  number_of_questions=None,  # type: int
+                  min_score_percent=None  # type: int
+                  ) -> None:
+        """
+        Take a quiz
+
+        :param ask_for_more: True to ask to continue after each question, False (default)
+        :param number_of_questions: Number of questions to ask to complete quiz
+        :param min_score_percent: Minimum score required to complete quiz
+        :return: None
+        """
+        self.correct = 0
+        self.incorrect = 0
+
+        # How many questions? (ask after each? fixed number? minimum score?)
+        more_questions = True
+        if ask_for_more:  # Ask if user wants to continue after each question
+            while more_questions:
+                for q in self.select_question_subset(1):  # type: Question
+                    print(q)
+                    # Get answer from user
+                    user_response = self.ask_user_for_answer(q)
+                    # Check answer, show result
+                    if q.is_correct_letter_answer(user_response):
+                        self.correct += 1
+                        print('Correct!\n')
+                    else:
+                        self.incorrect += 1
+                        print('Incorrect. The correct answer is {}.\n'.format(q.get_correct_letter_answer()))
+                    print(self.show_current_results())
+                more_questions = self.ask_user_to_continue()
+        elif number_of_questions is not None:  # Ask a fixed number of questions
+            # Select n questions (no repeats)
+            # Loop through questions
+            #   Display question
+            #   Get answer from user
+            #   Check answer
+            # Show final results
+            pass
+        elif min_score_percent is not None:  # Ask questions until a given score is reached
+            # Loop
+            #   Select a question
+            #   Display question
+            #   Get answer from user
+            #   Check answer
+            #   Show result
+            # Score >= min? -> If no, repeat loop
+            # If yes, show final results
+            pass
+
+        # Show final results
+
+        return None
+
     def __repr__(self) -> str:
         """
         Displays all questions in random order, with answers in random order (except T/F)
@@ -252,12 +262,12 @@ class Quiz(object):
         """
         r = ''  # type: str
         for q_index, question in enumerate(self.questions):  # type: int, Question
-            r += 'Class: ' + question.get_class_name() + '\n'  # type: str
-            r += 'Chapter: ' + question.get_chapter() + '\n'
-            r += str(q_index + 1) + '. ' + question.get_question() + '\n'
+            r += 'Class: {}\n'.format(question.class_name)
+            r += 'Chapter: {}\n'.format(question.chapter)
+            r += '{}. {}\n'.format(str(q_index + 1), question.question)
             all_answers = question.get_all_answers()  # type: List[str]
             for a_index, answer in enumerate(all_answers):  # type: int, str
-                r += ' ' * 4 + ascii_uppercase[a_index] + '. ' + answer + '\n'
+                r += '    {}. {}\n'.format(ascii_uppercase[a_index], answer)
             r += '\n'
 
         return r

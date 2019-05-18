@@ -74,28 +74,27 @@ def add_question(session,  # type: sessionmaker
                             false_answers=false_answers)
 
     # Try to add new class, reuse if it exists
-    new_class = ClassTable(class_name=new_question.get_class_name())
+    new_class = ClassTable(class_name=new_question.class_name)
     try:
         session.add(new_class)
         session.commit()
     except (IntegrityError, InvalidRequestError):  # UNIQUE constraint failed, already exists in table
         session.rollback()
-        new_class = session.query(ClassTable).filter(ClassTable.class_name == new_question.get_class_name()).one()
+        new_class = session.query(ClassTable).filter(ClassTable.class_name == new_question.class_name).one()
 
     # Try to add new chapter, reuse if it exists
-    new_chapter = ChapterTable(chapter=new_question.get_chapter(), class_name=new_class)
+    new_chapter = ChapterTable(chapter=new_question.chapter, class_name=new_class)
     try:
         session.add(new_chapter)
         session.commit()
     except (IntegrityError, InvalidRequestError):  # UNIQUE constraint failed, already exists in table
         session.rollback()
-        new_chapter = session.query(ChapterTable).filter(ChapterTable.chapter == new_question.get_chapter()).one()
+        new_chapter = session.query(ChapterTable).filter(ChapterTable.chapter == new_question.chapter).one()
 
-    new_row = QuestionTable(question=new_question.get_question(), true_answer=new_question.get_true_answer(),
-                            chapter=new_chapter)
+    new_row = QuestionTable(question=new_question.question, true_answer=new_question.true_answer, chapter=new_chapter)
     session.add(new_row)
     session.commit()
-    for f in new_question.get_false_answers():
+    for f in new_question.false_answers:
         new_false_answer = FalseAnswersTable(answer=f, question=new_row)
         session.add(new_false_answer)
         session.commit()
@@ -103,18 +102,16 @@ def add_question(session,  # type: sessionmaker
     return True
 
 
-def remove_question(session,  # type: sessionmaker
+def delete_question(session,  # type: sessionmaker
                     question  # type: str
                     ) -> bool:
     """
-    Removes a question from the database.
+    Deletes a question from the database. Does not remove orphans classes or chapters.
 
     :param session: DB session
-    :param question: question to remove
+    :param question: question to delete
     :return: True if successful, False if not
     """
-
-    # TODO: Still doesn't remove class and chapter
 
     try:
         question_rows = session.query(QuestionTable).filter(QuestionTable.question == question).one()
@@ -158,7 +155,7 @@ def print_quiz(session) -> None:
     quiz = Quiz(all_questions)  # type: Quiz
     print(quiz)
 
-    return True
+    return
 
 
 def cli_arguments() -> None:
@@ -168,16 +165,22 @@ def cli_arguments() -> None:
     :return:
     """
     parser = argparse.ArgumentParser(description='Create a quiz.')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-a', '--add', action='store_true', help='Add a new question')
-    group.add_argument('-r', '--remove', action='store_true', help='Remove an existing question')
-    group.add_argument('-p', '--print', action='store_true', help='Print all questions')
+    group_1 = parser.add_mutually_exclusive_group()
+    group_1.add_argument('-a', '--add', action='store_true', help='Add a new question')
+    group_1.add_argument('-r', '--remove', action='store_true', help='Remove an existing question')
+    group_1.add_argument('-p', '--print', action='store_true', help='Print all questions')
+    group_1.add_argument('-z', '--quiz', action='store_true', help='Take a quiz')
     parser.add_argument('-c', '--class', type=str, dest='class_', help='Class (enclosed in quotes)')
     parser.add_argument('-C', '--chapter', type=str, help='Chapter (enclosed in quotes)')
     parser.add_argument('-q', '--question', type=str, help='Question (enclosed in quotes)')
     parser.add_argument('-t', '--true_answer', type=str, help='True answer (enclosed in quotes)')
     parser.add_argument('-f', '--false_answers', type=str, nargs='+',
                         help='False answer(s) (each answer enclosed in quotes)')
+    group_2 = parser.add_mutually_exclusive_group()
+    group_2.add_argument('-n', '--number_of_questions', type=int, help='Number of questions to ask on quiz')
+    group_2.add_argument('-s', '--minimum_score', type=int, help='Minimum percentage to achieve on quiz')
+    group_2.add_argument('-k', '--keep_asking', action='store_true',
+                         help='Keep asking quiz questions until told to stop')
     args = parser.parse_args()
 
     # Print help message if no command line arguments are given
@@ -194,12 +197,19 @@ def cli_arguments() -> None:
         else:
             print('Unable to add question.')
     elif args.remove:
-        if remove_question(session, args.question):
+        if delete_question(session, args.question):
             print('Question removed successfully.')
         else:
             print('Unable to remove question.')
     elif args.print:
         print_quiz(session)
+    elif args.quiz:
+        if args.number_of_questions:
+            pass  # TODO
+        elif args.minimum_score:
+            pass  # TODO
+        elif args.keep_asking:
+            pass  # TODO
 
     end_session(session)
 
