@@ -9,18 +9,20 @@ Created on 5/9/19 7:55 AM
 """
 import argparse
 import sys
-from typing import Any, List
+from argparse import ArgumentParser, Namespace
+from typing import List
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+from sqlalchemy.orm.session import sessionmaker
 
 from class_declarative import Question, Quiz
 from db_declarative import ClassTable, ChapterTable, QuestionTable, FalseAnswersTable, Base
 
 
-def start_session() -> sessionmaker:
+def start_session() -> Session:
     """
     Opens a database session.
 
@@ -28,14 +30,14 @@ def start_session() -> sessionmaker:
     """
     engine = create_engine('sqlite:///quiz.db')
     Base.metadata.bind = engine
-    DBSession = sessionmaker()
-    DBSession.bind = engine
-    session = DBSession()
+    Session = sessionmaker()
+    Session.configure(bind=engine)
+    session = Session()
 
     return session
 
 
-def end_session(session  # type: sessionmaker
+def end_session(session: Session
                 ) -> bool:
     """
     Closes database session.
@@ -48,12 +50,12 @@ def end_session(session  # type: sessionmaker
     return True
 
 
-def add_question(session,  # type: sessionmaker
-                 class_name,  # type: str
-                 chapter,  # type: str
-                 question,  # type: str
-                 true_answer,  # type: str
-                 false_answers  # type: List[str]
+def add_question(session: Session,
+                 class_name: str,
+                 chapter: str,
+                 question: str,
+                 true_answer: str,
+                 false_answers: List[str]
                  ) -> bool:
     """
     Adds a question to the database.
@@ -66,15 +68,14 @@ def add_question(session,  # type: sessionmaker
     :param false_answers: list of text of false answers
     :return: True if database commit is successful
     """
-
-    new_question = Question(class_name=class_name,
-                            chapter=chapter,
-                            question=question,
-                            true_answer=true_answer,
-                            false_answers=false_answers)
+    new_question: Question = Question(class_name=class_name,
+                                      chapter=chapter,
+                                      question=question,
+                                      true_answer=true_answer,
+                                      false_answers=false_answers)
 
     # Try to add new class, reuse if it exists
-    new_class = ClassTable(class_name=new_question.class_name)
+    new_class: ClassTable = ClassTable(class_name=new_question.class_name)
     try:
         session.add(new_class)
         session.commit()
@@ -83,7 +84,7 @@ def add_question(session,  # type: sessionmaker
         new_class = session.query(ClassTable).filter(ClassTable.class_name == new_question.class_name).one()
 
     # Try to add new chapter, reuse if it exists
-    new_chapter = ChapterTable(chapter=new_question.chapter, class_name=new_class)
+    new_chapter: ChapterTable = ChapterTable(chapter=new_question.chapter, class_name=new_class)
     try:
         session.add(new_chapter)
         session.commit()
@@ -91,19 +92,21 @@ def add_question(session,  # type: sessionmaker
         session.rollback()
         new_chapter = session.query(ChapterTable).filter(ChapterTable.chapter == new_question.chapter).one()
 
-    new_row = QuestionTable(question=new_question.question, true_answer=new_question.true_answer, chapter=new_chapter)
+    new_row: QuestionTable = QuestionTable(question=new_question.question, true_answer=new_question.true_answer,
+                                           chapter=new_chapter)
     session.add(new_row)
     session.commit()
+
     for f in new_question.false_answers:
-        new_false_answer = FalseAnswersTable(answer=f, question=new_row)
+        new_false_answer: FalseAnswersTable = FalseAnswersTable(answer=f, question=new_row)
         session.add(new_false_answer)
         session.commit()
 
     return True
 
 
-def delete_question(session,  # type: sessionmaker
-                    question  # type: str
+def delete_question(session: Session,
+                    question: str
                     ) -> bool:
     """
     Deletes a question from the database. Does not remove orphans classes or chapters.
@@ -114,7 +117,8 @@ def delete_question(session,  # type: sessionmaker
     """
 
     try:
-        question_rows = session.query(QuestionTable).filter(QuestionTable.question == question).one()
+        query: Session = session.query(QuestionTable).filter(QuestionTable.question == question)
+        question_rows: List[QuestionTable] = query.one()
     except NoResultFound:
         print('ERROR: Question not found.')
         end_session(session)
@@ -130,8 +134,8 @@ def delete_question(session,  # type: sessionmaker
         return True
 
 
-def question_table_to_list(session,  # type: sessionmaker
-                           question_rows  # type: List[QuestionTable]
+def question_table_to_list(session: Session,
+                           question_rows: List[QuestionTable]
                            ) -> List[Question]:
     """
     Converts QuestionTable rows from query to a list of Question objects.
@@ -140,12 +144,13 @@ def question_table_to_list(session,  # type: sessionmaker
     :param question_rows: QuestionTable rows from query
     :return: list of Question objects
     """
-    all_questions = []  # type: List[Question]
-    for question_row in question_rows:  # type: Any
-        false_answer_list = []  # type: List[str]
-        false_answer_rows = session.query(FalseAnswersTable).filter(FalseAnswersTable.question == question_row).all()
-        for false_answer_row in false_answer_rows:  # type: FalseAnswersTable
+    for question_row in question_rows:
+        query: Session = session.query(FalseAnswersTable).filter(FalseAnswersTable.question == question_row)
+        false_answer_rows: List[FalseAnswersTable] = query.all()
+        false_answer_list: List[str] = []
+        for false_answer_row in false_answer_rows:
             false_answer_list.append(false_answer_row.answer)
+        all_questions: List[Question] = []
         all_questions.append(Question(class_name=question_row.chapter.class_name.class_name,
                                       chapter=question_row.chapter.chapter,
                                       question=question_row.question,
@@ -155,9 +160,9 @@ def question_table_to_list(session,  # type: sessionmaker
     return all_questions
 
 
-def get_questions_from_db(session,  # type: sessionmaker
-                          class_name=None,  # type: str
-                          chapter=None  # type: str
+def get_questions_from_db(session: Session,
+                          class_name: str = None,
+                          chapter: str = None
                           ) -> List[Question]:
     """
     Retrieves rows from QuestionTable, filtering by class name and chapter.
@@ -168,48 +173,85 @@ def get_questions_from_db(session,  # type: sessionmaker
     :return: list of Question objects
     """
     # Set up query
-    query = session.query(QuestionTable)
+    query: Session = session.query(QuestionTable)
     if class_name is not None:
         query = query.filter(QuestionTable.chapter.class_name == class_name)
     if chapter is not None:
         query = query.filter(QuestionTable.chapter == chapter)
-    question_rows = query.all()  # type: List[QuestionTable]
+    question_rows: List[QuestionTable] = query.all()
 
-    all_questions = question_table_to_list(session, question_rows)  # type: List[Question]
+    all_questions: List[Question] = question_table_to_list(session=session,
+                                                           question_rows=question_rows)
 
     return all_questions
 
 
-def print_quiz(session  # type: sessionmaker
+def print_quiz(session: Session,
+               class_name: str,
+               chapter: str
                ) -> None:
     """
     Prints all questions in the form of a quiz.
-
-    :param session: DB session
+    
+    :param session: DB session 
+    :param class_name: string of class_name
+    :param chapter: string of chapter
     :return: None
     """
-    all_questions = get_questions_from_db(session)  # type: List[Any]
+    all_questions: List[Question] = get_questions_from_db(session=session,
+                                                          class_name=class_name,
+                                                          chapter=chapter)
 
-    quiz = Quiz(all_questions)  # type: Quiz
+    quiz: Quiz = Quiz(all_questions)
     print(quiz)
 
     return
 
 
-def take_quiz_keep_asking(session  # type: sessionmaker
+def take_quiz_number_of_questions(session: Session,
+                                  class_name: str,
+                                  chapter: str,
+                                  number_of_questions: int
+                                  ) -> None:
+    """
+    Take a quiz with a fixed number of questions.
+
+    :param session: DB session
+    :param class_name: string of class name
+    :param chapter: string of chapter
+    :param number_of_questions: int of number of questions to ask
+    :return: None
+    """
+    all_questions: List[Question] = get_questions_from_db(session=session,
+                                                          class_name=class_name,
+                                                          chapter=chapter)
+
+    quiz: Quiz = Quiz(all_questions)
+    quiz.take_quiz(number_of_questions=number_of_questions)
+
+    return
+
+
+def take_quiz_keep_asking(session: Session,
+                          class_name: str,
+                          chapter: str
                           ) -> None:
     """
     Take a quiz, asking to continue after each question.
 
     :param session: DB session
+    :param class_name: string of class name
+    :param chapter: string of chapter
     :return: None
     """
     # TODO: Answer is always A, need to shuffle answers
     # TODO: Last answer shows as invalid, need to add 1 to list of possibilities
     # TODO: Once ready to deploy, don't print mark next to correct answer
-    all_questions = get_questions_from_db(session)  # type: List[Any]
+    all_questions: List[Question] = get_questions_from_db(session=session,
+                                                          class_name=class_name,
+                                                          chapter=chapter)
 
-    quiz = Quiz(all_questions)  # type: Quiz
+    quiz: Quiz = Quiz(all_questions)
     quiz.take_quiz(ask_for_more=True)
 
     return
@@ -222,7 +264,7 @@ def cli_arguments() -> None:
     :return:
     """
     # Parser setup
-    parser = argparse.ArgumentParser(description='Create a quiz.')
+    parser: ArgumentParser = argparse.ArgumentParser(description='Create a quiz.')
     group_1 = parser.add_mutually_exclusive_group()
     group_1.add_argument('-a', '--add', action='store_true', help='add a new question')
     group_1.add_argument('-r', '--remove', action='store_true', help='remove an existing question')
@@ -236,10 +278,9 @@ def cli_arguments() -> None:
                         help='false answer(s) (each answer enclosed in quotes)')
     group_2 = parser.add_mutually_exclusive_group()
     group_2.add_argument('-n', '--number_of_questions', type=int, help='number of questions to ask on quiz')
-    group_2.add_argument('-s', '--minimum_score', type=int, help='minimum percentage to achieve on quiz')
     group_2.add_argument('-k', '--keep_asking', action='store_true',
                          help='keep asking quiz questions until told to stop')
-    args = parser.parse_args()
+    args: Namespace = parser.parse_args()
 
     # Print help message if no command line arguments are given
     if len(sys.argv) == 1:
@@ -247,28 +288,39 @@ def cli_arguments() -> None:
         sys.exit(1)
 
     # Start DB session
-    session = start_session()
+    session: Session = start_session()
 
     # Process command line arguments
     if args.add:
-        if add_question(session, args.class_, args.chapter, args.question, args.true_answer, args.false_answers):
+        if add_question(session=session,
+                        class_name=args.class_,
+                        chapter=args.chapter,
+                        question=args.question,
+                        true_answer=args.true_answer,
+                        false_answers=args.false_answers):
             print('Question added successfully.')
         else:
             print('Unable to add question.')
     elif args.remove:
-        if delete_question(session, args.question):
+        if delete_question(session=session,
+                           question=args.question):
             print('Question removed successfully.')
         else:
             print('Unable to remove question.')
     elif args.print:
-        print_quiz(session)
+        print_quiz(session=session,
+                   class_name=args.class_,
+                   chapter=args.chapter)
     elif args.quiz:
         if args.number_of_questions:
-            pass  # TODO: implement args.number
-        elif args.minimum_score:
-            pass  # TODO: implement args.minimum_score
+            take_quiz_number_of_questions(session=session,
+                                          class_name=args.class_,
+                                          chapter=args.chapter,
+                                          number_of_questions=args.number_of_questions)
         elif args.keep_asking:
-            take_quiz_keep_asking(session)
+            take_quiz_keep_asking(session=session,
+                                  class_name=args.class_,
+                                  chapter=args.chapter)
 
     # End DB session
     end_session(session)

@@ -7,7 +7,7 @@ Created on 5/14/19 2:01 PM
 """
 import random
 from string import ascii_uppercase
-from typing import List, Any
+from typing import List
 
 
 class Question(object):
@@ -16,11 +16,11 @@ class Question(object):
     """
 
     def __init__(self,
-                 class_name,  # type: str
-                 chapter,  # type: str
-                 question,  # type: str
-                 true_answer,  # type: str
-                 false_answers,  # type: List[str]
+                 class_name: str,
+                 chapter: str,
+                 question: str,
+                 true_answer: str,
+                 false_answers: List[str]
                  ) -> None:
         """
         Initializes Question class
@@ -31,14 +31,14 @@ class Question(object):
         :param true_answer: text of true answer
         :param false_answers: list of text of incorrect answers
         """
-        self.class_name = class_name  # type: str
-        self.chapter = chapter  # type: str
-        self.question = question  # type: str
-        self.true_answer = true_answer  # type: str
-        self.false_answers = false_answers  # type: List[str]
+        self.class_name: str = class_name
+        self.chapter: str = chapter
+        self.question: str = question
+        self.true_answer: str = true_answer
+        self.false_answers: List[str] = false_answers
 
     def get_all_answers(self,
-                        shuffle=False  # type: bool
+                        shuffle: bool = False
                         ) -> List[str]:
         """
         Returns true and false answers, optionally shuffling them into random order
@@ -46,14 +46,14 @@ class Question(object):
         :param shuffle: boolean True to shuffle, False (default) to leave unordered
         :return: list of text of all answers
         """
-        r = [self.true_answer, *self.false_answers]  # type: List[str]
+        r: List[str] = [self.true_answer, *self.false_answers]
         if shuffle:
             self.shuffle_answers(r)
 
         return r
 
     @staticmethod
-    def shuffle_answers(answers  # type: List[str]
+    def shuffle_answers(answers: List[str]
                         ) -> List[str]:
         """
         STATIC METHOD
@@ -75,10 +75,10 @@ class Question(object):
 
         :return: String of correct letter answer
         """
-        return ascii_uppercase[self.get_all_answers().index(self.true_answer)]
+        return ascii_uppercase[self.get_all_answers().index(self.true_answer) + 1]
 
     def is_correct_answer(self,
-                          answer  # type: str
+                          answer: str
                           ) -> bool:
         """
         Checks if specified answer matches true answer
@@ -89,7 +89,7 @@ class Question(object):
         return answer == self.true_answer
 
     def is_correct_letter_answer(self,
-                                 letter  # type: str
+                                 letter: str
                                  ) -> bool:
         """
         Checks specified letter answer against correct letter answer. Returns True if correct, False if incorrect.
@@ -97,7 +97,7 @@ class Question(object):
         :param letter: String of letter answered
         :return: True if letter matches true answer, False if not
         """
-        answer = self.get_all_answers()[ascii_uppercase.find(letter)]
+        answer: str = self.get_all_answers()[ascii_uppercase.find(letter)]
         return self.is_correct_answer(answer)
 
     def __repr__(self) -> str:
@@ -107,11 +107,11 @@ class Question(object):
         :return: text of question and answers
         """
         # Construct return string r
-        r = 'Class: {}\n'.format(self.class_name)  # type: str
-        r += 'Chapter: {}\n'.format(self.chapter)
-        r += '{}\n'.format(self.question + '\n')
-        all_answers = self.get_all_answers(False)  # type: List[str]
-        for index, answer in enumerate(all_answers):  # type: int, str
+        r: str = 'Class: {}\nChapter: {}\n{}\n'.format(self.class_name, self.chapter, self.question + '\n')
+        all_answers: List[str] = self.get_all_answers(False)
+        index: int
+        answer: str
+        for index, answer in enumerate(all_answers):
             # Mark correct answer
             if answer == self.true_answer:
                 r += '   *'
@@ -130,21 +130,21 @@ class Quiz(object):
     """
 
     def __init__(self,
-                 questions  # type: List[Any]
+                 questions: List[Question]
                  ) -> None:
         """
         Initializes Quiz class
 
         :param questions: list of selected Question objects
         """
-        self.correct = 0  # type: int
-        self.incorrect = 0  # type: int
-        self.questions = questions  # type: List[Any]
+        self.correct: int = 0
+        self.incorrect: int = 0
+        self.questions: List[Question] = questions
         random.shuffle(self.questions)
 
     def select_question_subset(self,
-                               count  # type: int
-                               ) -> List[Any]:
+                               count: int
+                               ) -> List[Question]:
         """
         Returns a subset of Question objects in a list. If count is larger than the number of questions available,
         returns all questions.
@@ -152,11 +152,18 @@ class Quiz(object):
         :param count: Number of questions to return
         :return: List of Question objects
         """
+        # Shuffle questions and answers
         random.shuffle(self.questions)
-        return self.questions[0:min(count, len(self.questions))]
+        # TODO: implement shuffle answers
+
+        start: int = 0
+        stop: int = min(count, len(self.questions))
+        r = self.questions[start:stop]
+
+        return r
 
     @staticmethod
-    def ask_user_for_answer(question  # type: Question
+    def ask_user_for_answer(question: Question
                             ) -> str:
         """
         Asks user to input an answer and sanitizes input
@@ -164,9 +171,9 @@ class Quiz(object):
         :param question: Question object to check valid answers
         :return: string of answer
         """
-        possible_answers = ascii_uppercase[0:len(question.false_answers)]
+        possible_answers: str = ascii_uppercase[0:len(question.false_answers)]
         while True:
-            response = input('Answer: ').upper()
+            response: str = input('Answer: ').upper()
             # Expecting a single letter, within group of possible answers
             if (len(response) == 1) and (response in possible_answers):
                 return response
@@ -179,9 +186,9 @@ class Quiz(object):
 
         :return: String of results
         """
-        answered = self.correct + self.incorrect  # type: int
-        pct_correct = round(self.correct / (self.correct + self.incorrect), 3) * 100  # tyoe: float
-        pct_incorrect = round(self.incorrect / (self.correct + self.incorrect), 3) * 100  # type: float
+        answered: int = self.correct + self.incorrect
+        pct_correct: float = round(self.correct / (self.correct + self.incorrect), 3) * 100
+        pct_incorrect: float = round(self.incorrect / (self.correct + self.incorrect), 3) * 100
         return '{} questions answered, {}% correct, {}% incorrect.'.format(answered, pct_correct, pct_incorrect)
 
     @staticmethod
@@ -192,33 +199,33 @@ class Quiz(object):
 
         :return: True if user wants to continue, False if user wants to stop
         """
-        response = input('Continue? [YES/no]: ').upper()  # type: str
+        response: str = input('Continue? [YES/no]: ').upper()
         if ('Y' in response) or (response == ''):
             return True
         else:
             return False
 
     def take_quiz(self,
-                  ask_for_more=False,  # type: bool
-                  number_of_questions=None,  # type: int
-                  min_score_percent=None  # type: int
+                  ask_for_more: bool = False,
+                  number_of_questions: int = None
                   ) -> None:
         """
         Take a quiz
 
         :param ask_for_more: True to ask to continue after each question, False (default)
         :param number_of_questions: Number of questions to ask to complete quiz
-        :param min_score_percent: Minimum score required to complete quiz
         :return: None
         """
         self.correct = 0
         self.incorrect = 0
 
         # How many questions? (ask after each? fixed number? minimum score?)
-        more_questions = True
+        more_questions: bool = True
         if ask_for_more:  # Ask if user wants to continue after each question
+            q: Question
+            user_response: str
             while more_questions:
-                for q in self.select_question_subset(1):  # type: Question
+                for q in self.select_question_subset(1):
                     print(q)
                     # Get answer from user
                     user_response = self.ask_user_for_answer(q)
@@ -232,23 +239,18 @@ class Quiz(object):
                     print(self.show_current_results())
                 more_questions = self.ask_user_to_continue()
         elif number_of_questions is not None:  # Ask a fixed number of questions
-            # Select n questions (no repeats)
-            # Loop through questions
-            #   Display question
-            #   Get answer from user
-            #   Check answer
-            # Show final results
-            pass
-        elif min_score_percent is not None:  # Ask questions until a given score is reached
-            # Loop
-            #   Select a question
-            #   Display question
-            #   Get answer from user
-            #   Check answer
-            #   Show result
-            # Score >= min? -> If no, repeat loop
-            # If yes, show final results
-            pass
+            for q in self.select_question_subset(number_of_questions):
+                print(q)
+                # Get answer from user
+                user_response = self.ask_user_for_answer(q)
+                # Check answer, show result
+                if q.is_correct_letter_answer(user_response):
+                    self.correct += 1
+                    print('Correct!\n')
+                else:
+                    self.incorrect += 1
+                    print('Incorrect. The correct answer is {}.\n'.format(q.get_correct_letter_answer()))
+                print(self.show_current_results())
 
         # Show final results
 
@@ -260,13 +262,15 @@ class Quiz(object):
 
         :return: text of all questions
         """
-        r = ''  # type: str
         for q_index, question in enumerate(self.questions):  # type: int, Question
-            r += 'Class: {}\n'.format(question.class_name)
-            r += 'Chapter: {}\n'.format(question.chapter)
-            r += '{}. {}\n'.format(str(q_index + 1), question.question)
-            all_answers = question.get_all_answers()  # type: List[str]
-            for a_index, answer in enumerate(all_answers):  # type: int, str
+            r: str = 'Class: {}\nChapter: {}\n{}. {}\n'.format(question.class_name,
+                                                               question.chapter,
+                                                               str(q_index + 1),
+                                                               question.question)
+            all_answers: List[str] = question.get_all_answers()
+            a_index: int
+            answer: str
+            for a_index, answer in enumerate(all_answers):
                 r += '    {}. {}\n'.format(ascii_uppercase[a_index], answer)
             r += '\n'
 

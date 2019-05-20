@@ -30,8 +30,6 @@ optional arguments:
                         false answer(s) (each answer enclosed in quotes)
   -n NUMBER_OF_QUESTIONS, --number_of_questions NUMBER_OF_QUESTIONS
                         number of questions to ask on quiz
-  -s MINIMUM_SCORE, --minimum_score MINIMUM_SCORE
-                        minimum percentage to achieve on quiz
   -k, --keep_asking     keep asking quiz questions until told to stop
 ```
 ## Languages/Frameworks used:
