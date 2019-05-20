@@ -75,7 +75,7 @@ class Question(object):
 
         :return: String of correct letter answer
         """
-        return ascii_uppercase[self.get_all_answers().index(self.true_answer) + 1]
+        return ascii_uppercase[self.get_all_answers().index(self.true_answer)]
 
     def is_correct_answer(self,
                           answer: str
@@ -107,7 +107,9 @@ class Question(object):
         :return: text of question and answers
         """
         # Construct return string r
-        r: str = 'Class: {}\nChapter: {}\n{}\n'.format(self.class_name, self.chapter, self.question + '\n')
+        r: str = 'Class: {:s}\nChapter: {:s}\n{:s}\n\n'.format(self.class_name,
+                                                               self.chapter,
+                                                               self.question)
         all_answers: List[str] = self.get_all_answers(False)
         index: int
         answer: str
@@ -119,7 +121,7 @@ class Question(object):
                 r += '    '
 
             # Add letter and answer
-            r += '{}. {}\n'.format(ascii_uppercase[index], answer)
+            r += '{:s}. {:s}\n'.format(ascii_uppercase[index], answer)
 
         return r
 
@@ -154,13 +156,37 @@ class Quiz(object):
         """
         # Shuffle questions and answers
         random.shuffle(self.questions)
-        # TODO: implement shuffle answers
 
         start: int = 0
         stop: int = min(count, len(self.questions))
-        r = self.questions[start:stop]
+        return self.questions[start:stop]
 
-        return r
+    @staticmethod
+    def print_question(question: Question
+                       ) -> str:
+        """
+        STATIC METHOD
+        Prints question and returns the letter of the correct answer.
+
+        :param question: Question object
+        :return: string of letter of correct answer
+        """
+        correct_answer: str
+
+        r: str = 'Class: {:s}\nChapter: {:s}\n{:s}\n\n'.format(question.class_name,
+                                                               question.chapter,
+                                                               question.question)
+        all_answers: List[str] = question.get_all_answers(shuffle=True)
+        index: int
+        answer: str
+        for index, answer in enumerate(all_answers):
+            r += '{:>4s}. {:s}\n'.format(ascii_uppercase[index], answer)
+            if answer == question.true_answer:
+                correct_answer = ascii_uppercase[index]
+
+        print(r)
+
+        return correct_answer
 
     @staticmethod
     def ask_user_for_answer(question: Question
@@ -171,7 +197,9 @@ class Quiz(object):
         :param question: Question object to check valid answers
         :return: string of answer
         """
-        possible_answers: str = ascii_uppercase[0:len(question.false_answers)]
+        start: int = 0
+        stop: int = len(question.false_answers) + 1
+        possible_answers: str = ascii_uppercase[start:stop]
         while True:
             response: str = input('Answer: ').upper()
             # Expecting a single letter, within group of possible answers
@@ -187,9 +215,10 @@ class Quiz(object):
         :return: String of results
         """
         answered: int = self.correct + self.incorrect
-        pct_correct: float = round(self.correct / (self.correct + self.incorrect), 3) * 100
-        pct_incorrect: float = round(self.incorrect / (self.correct + self.incorrect), 3) * 100
-        return '{} questions answered, {}% correct, {}% incorrect.'.format(answered, pct_correct, pct_incorrect)
+        pct_correct: float = self.correct / (self.correct + self.incorrect) * 100
+        pct_incorrect: float = self.incorrect / (self.correct + self.incorrect) * 100
+        return '{:d} questions answered, {:.1f}% correct, {:.1f}% incorrect.'.format(answered, pct_correct,
+                                                                                     pct_incorrect)
 
     @staticmethod
     def ask_user_to_continue() -> bool:
@@ -205,6 +234,26 @@ class Quiz(object):
         else:
             return False
 
+    def check_answer(self,
+                     correct_answer: str,
+                     user_response: str
+                     ) -> bool:
+        """
+        Checks user response against correct answer and increments counters.
+
+        :param correct_answer: Correct answer
+        :param user_response: User response
+        :return: True if user response is correct, False otherwise
+        """
+        if correct_answer == user_response:
+            self.correct += 1
+            print('Correct!\n')
+        else:
+            self.incorrect += 1
+            print('Incorrect. The correct answer is {:s}.\n'.format(correct_answer))
+
+        return correct_answer == user_response
+
     def take_quiz(self,
                   ask_for_more: bool = False,
                   number_of_questions: int = None
@@ -219,40 +268,26 @@ class Quiz(object):
         self.correct = 0
         self.incorrect = 0
 
-        # How many questions? (ask after each? fixed number? minimum score?)
         more_questions: bool = True
+        q: Question
+        correct_answer: str
+        user_response: str
         if ask_for_more:  # Ask if user wants to continue after each question
-            q: Question
-            user_response: str
             while more_questions:
                 for q in self.select_question_subset(1):
-                    print(q)
-                    # Get answer from user
+                    correct_answer = self.print_question(question=q)
                     user_response = self.ask_user_for_answer(q)
-                    # Check answer, show result
-                    if q.is_correct_letter_answer(user_response):
-                        self.correct += 1
-                        print('Correct!\n')
-                    else:
-                        self.incorrect += 1
-                        print('Incorrect. The correct answer is {}.\n'.format(q.get_correct_letter_answer()))
+                    self.check_answer(correct_answer=correct_answer,
+                                      user_response=user_response)
                     print(self.show_current_results())
                 more_questions = self.ask_user_to_continue()
         elif number_of_questions is not None:  # Ask a fixed number of questions
             for q in self.select_question_subset(number_of_questions):
-                print(q)
-                # Get answer from user
+                correct_answer = self.print_question(question=q)
                 user_response = self.ask_user_for_answer(q)
-                # Check answer, show result
-                if q.is_correct_letter_answer(user_response):
-                    self.correct += 1
-                    print('Correct!\n')
-                else:
-                    self.incorrect += 1
-                    print('Incorrect. The correct answer is {}.\n'.format(q.get_correct_letter_answer()))
-                print(self.show_current_results())
-
-        # Show final results
+                self.check_answer(correct_answer=correct_answer,
+                                  user_response=user_response)
+            print(self.show_current_results())
 
         return None
 
@@ -262,16 +297,19 @@ class Quiz(object):
 
         :return: text of all questions
         """
-        for q_index, question in enumerate(self.questions):  # type: int, Question
-            r: str = 'Class: {}\nChapter: {}\n{}. {}\n'.format(question.class_name,
-                                                               question.chapter,
-                                                               str(q_index + 1),
-                                                               question.question)
+        q_index: int
+        question: Question
+        r: str
+        for q_index, question in enumerate(self.questions):
+            r = 'Class: {:s}\nChapter: {:s}\n{:s}. {:s}\n'.format(question.class_name,
+                                                                  question.chapter,
+                                                                  str(q_index + 1),
+                                                                  question.question)
             all_answers: List[str] = question.get_all_answers()
             a_index: int
             answer: str
             for a_index, answer in enumerate(all_answers):
-                r += '    {}. {}\n'.format(ascii_uppercase[a_index], answer)
+                r += '    {:s}. {:s}\n'.format(ascii_uppercase[a_index], answer)
             r += '\n'
 
         return r

@@ -14,7 +14,7 @@ from typing import List
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, Query
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy.orm.session import sessionmaker
 
@@ -30,9 +30,9 @@ def start_session() -> Session:
     """
     engine = create_engine('sqlite:///quiz.db')
     Base.metadata.bind = engine
-    Session = sessionmaker()
-    Session.configure(bind=engine)
-    session = Session()
+    DBSession = sessionmaker()
+    DBSession.configure(bind=engine)
+    session = DBSession()
 
     return session
 
@@ -144,13 +144,13 @@ def question_table_to_list(session: Session,
     :param question_rows: QuestionTable rows from query
     :return: list of Question objects
     """
+    all_questions: List[Question] = []
     for question_row in question_rows:
         query: Session = session.query(FalseAnswersTable).filter(FalseAnswersTable.question == question_row)
         false_answer_rows: List[FalseAnswersTable] = query.all()
         false_answer_list: List[str] = []
         for false_answer_row in false_answer_rows:
             false_answer_list.append(false_answer_row.answer)
-        all_questions: List[Question] = []
         all_questions.append(Question(class_name=question_row.chapter.class_name.class_name,
                                       chapter=question_row.chapter.chapter,
                                       question=question_row.question,
@@ -173,7 +173,7 @@ def get_questions_from_db(session: Session,
     :return: list of Question objects
     """
     # Set up query
-    query: Session = session.query(QuestionTable)
+    query: Query = session.query(QuestionTable)
     if class_name is not None:
         query = query.filter(QuestionTable.chapter.class_name == class_name)
     if chapter is not None:
@@ -244,9 +244,6 @@ def take_quiz_keep_asking(session: Session,
     :param chapter: string of chapter
     :return: None
     """
-    # TODO: Answer is always A, need to shuffle answers
-    # TODO: Last answer shows as invalid, need to add 1 to list of possibilities
-    # TODO: Once ready to deploy, don't print mark next to correct answer
     all_questions: List[Question] = get_questions_from_db(session=session,
                                                           class_name=class_name,
                                                           chapter=chapter)

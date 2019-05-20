@@ -67,27 +67,27 @@ questions = [Question(class_name='BIOL 1127',
 
 for q in questions:
     # Try to add new class, reuse if it exists
-    new_class = ClassTable(class_name=q.get_class_name())
+    new_class = ClassTable(class_name=q.class_name)
     try:
         session.add(new_class)
         session.commit()
     except (IntegrityError, InvalidRequestError):  # UNIQUE constraint failed, already exists in table
         session.rollback()
-        new_class = session.query(ClassTable).filter(ClassTable.class_name == q.get_class_name()).one()
+        new_class = session.query(ClassTable).filter(ClassTable.class_name == q.class_name).one()
 
     # Try to add new chapter, reuse if it exists
-    new_chapter = ChapterTable(chapter=q.get_chapter(), class_name=new_class)
+    new_chapter = ChapterTable(chapter=q.chapter, class_name=new_class)
     try:
         session.add(new_chapter)
         session.commit()
     except (IntegrityError, InvalidRequestError):  # UNIQUE constraint failed, already exists in table
         session.rollback()
-        new_chapter = session.query(ChapterTable).filter(ChapterTable.chapter == q.get_chapter()).one()
+        new_chapter = session.query(ChapterTable).filter(ChapterTable.chapter == q.chapter).one()
 
-    new_question = QuestionTable(question=q.get_question(), true_answer=q.get_true_answer(), chapter=new_chapter)
+    new_question = QuestionTable(question=q.question, true_answer=q.true_answer, chapter=new_chapter)
     session.add(new_question)
     session.commit()
-    for f in q.get_false_answers():
+    for f in q.false_answers:
         new_false_answer = FalseAnswersTable(answer=f, question=new_question)
         session.add(new_false_answer)
         session.commit()
