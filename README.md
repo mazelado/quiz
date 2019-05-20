@@ -2,7 +2,7 @@
 Create and take quizzes. Questions and answers are shuffled each time. I created this to help my wife study for her grad school classes.
 
 ## Status:
-Alpha - Still in development
+Beta - All 1.0 features implemented, checking for bugs
 
 ## Usage:
 ```
