@@ -6,26 +6,33 @@ Alpha - Still in development
 
 ## Usage:
 ```
-usage: quiz.py [-h] [-a | -r | -p] [-c CLASS] [-C CHAPTER] [-q QUESTION]
+usage: quiz.py [-h] [-a | -r | -p | -z] [-c CLASS_] [-C CHAPTER] [-q QUESTION]
                [-t TRUE_ANSWER] [-f FALSE_ANSWERS [FALSE_ANSWERS ...]]
+               [-n NUMBER_OF_QUESTIONS | -s MINIMUM_SCORE | -k]
 
 Create a quiz.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a, --add             Add a new question
-  -r, --remove          Remove an existing question
-  -p, --print           Print all questions
-  -c CLASS, --class CLASS
-                        Class (enclosed in quotes)
+  -a, --add             add a new question
+  -r, --remove          remove an existing question
+  -p, --print           print all questions
+  -z, --quiz            take a quiz
+  -c CLASS_, --class CLASS_
+                        class (enclosed in quotes)
   -C CHAPTER, --chapter CHAPTER
-                        Chapter (enclosed in quotes)
+                        chapter (enclosed in quotes)
   -q QUESTION, --question QUESTION
-                        Question (enclosed in quotes)
+                        question (enclosed in quotes)
   -t TRUE_ANSWER, --true_answer TRUE_ANSWER
-                        True answer (enclosed in quotes)
+                        true answer (enclosed in quotes)
   -f FALSE_ANSWERS [FALSE_ANSWERS ...], --false_answers FALSE_ANSWERS [FALSE_ANSWERS ...]
-                        False answer(s) (each answer enclosed in quotes)
+                        false answer(s) (each answer enclosed in quotes)
+  -n NUMBER_OF_QUESTIONS, --number_of_questions NUMBER_OF_QUESTIONS
+                        number of questions to ask on quiz
+  -s MINIMUM_SCORE, --minimum_score MINIMUM_SCORE
+                        minimum percentage to achieve on quiz
+  -k, --keep_asking     keep asking quiz questions until told to stop
 ```
 ## Languages/Frameworks used:
 * Python

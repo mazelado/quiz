@@ -130,17 +130,17 @@ def delete_question(session,  # type: sessionmaker
         return True
 
 
-def print_quiz(session) -> None:
+def question_table_to_list(session,  # type: sessionmaker
+                           question_rows  # type: List[QuestionTable]
+                           ) -> List[Question]:
     """
-    Prints all questions in the form of a quiz.
+    Converts QuestionTable rows from query to a list of Question objects.
 
     :param session: DB session
-    :return: True
+    :param question_rows: QuestionTable rows from query
+    :return: list of Question objects
     """
-
-    question_rows = session.query(QuestionTable).all()
-    all_questions = []  # type: List[Any]
-
+    all_questions = []  # type: List[Question]
     for question_row in question_rows:  # type: Any
         false_answer_list = []  # type: List[str]
         false_answer_rows = session.query(FalseAnswersTable).filter(FalseAnswersTable.question == question_row).all()
@@ -152,8 +152,65 @@ def print_quiz(session) -> None:
                                       true_answer=question_row.true_answer,
                                       false_answers=false_answer_list))
 
+    return all_questions
+
+
+def get_questions_from_db(session,  # type: sessionmaker
+                          class_name=None,  # type: str
+                          chapter=None  # type: str
+                          ) -> List[Question]:
+    """
+    Retrieves rows from QuestionTable, filtering by class name and chapter.
+
+    :param session: DB session
+    :param class_name: string of class name
+    :param chapter: string of chapter
+    :return: list of Question objects
+    """
+    # Set up query
+    query = session.query(QuestionTable)
+    if class_name is not None:
+        query = query.filter(QuestionTable.chapter.class_name == class_name)
+    if chapter is not None:
+        query = query.filter(QuestionTable.chapter == chapter)
+    question_rows = query.all()  # type: List[QuestionTable]
+
+    all_questions = question_table_to_list(session, question_rows)  # type: List[Question]
+
+    return all_questions
+
+
+def print_quiz(session  # type: sessionmaker
+               ) -> None:
+    """
+    Prints all questions in the form of a quiz.
+
+    :param session: DB session
+    :return: None
+    """
+    all_questions = get_questions_from_db(session)  # type: List[Any]
+
     quiz = Quiz(all_questions)  # type: Quiz
     print(quiz)
+
+    return
+
+
+def take_quiz_keep_asking(session  # type: sessionmaker
+                          ) -> None:
+    """
+    Take a quiz, asking to continue after each question.
+
+    :param session: DB session
+    :return: None
+    """
+    # TODO: Answer is always A, need to shuffle answers
+    # TODO: Last answer shows as invalid, need to add 1 to list of possibilities
+    # TODO: Once ready to deploy, don't print mark next to correct answer
+    all_questions = get_questions_from_db(session)  # type: List[Any]
+
+    quiz = Quiz(all_questions)  # type: Quiz
+    quiz.take_quiz(ask_for_more=True)
 
     return
 
@@ -164,23 +221,24 @@ def cli_arguments() -> None:
 
     :return:
     """
+    # Parser setup
     parser = argparse.ArgumentParser(description='Create a quiz.')
     group_1 = parser.add_mutually_exclusive_group()
-    group_1.add_argument('-a', '--add', action='store_true', help='Add a new question')
-    group_1.add_argument('-r', '--remove', action='store_true', help='Remove an existing question')
-    group_1.add_argument('-p', '--print', action='store_true', help='Print all questions')
-    group_1.add_argument('-z', '--quiz', action='store_true', help='Take a quiz')
-    parser.add_argument('-c', '--class', type=str, dest='class_', help='Class (enclosed in quotes)')
-    parser.add_argument('-C', '--chapter', type=str, help='Chapter (enclosed in quotes)')
-    parser.add_argument('-q', '--question', type=str, help='Question (enclosed in quotes)')
-    parser.add_argument('-t', '--true_answer', type=str, help='True answer (enclosed in quotes)')
+    group_1.add_argument('-a', '--add', action='store_true', help='add a new question')
+    group_1.add_argument('-r', '--remove', action='store_true', help='remove an existing question')
+    group_1.add_argument('-p', '--print', action='store_true', help='print all questions')
+    group_1.add_argument('-z', '--quiz', action='store_true', help='take a quiz')
+    parser.add_argument('-c', '--class', type=str, dest='class_', help='class (enclosed in quotes)')
+    parser.add_argument('-C', '--chapter', type=str, help='chapter (enclosed in quotes)')
+    parser.add_argument('-q', '--question', type=str, help='question (enclosed in quotes)')
+    parser.add_argument('-t', '--true_answer', type=str, help='true answer (enclosed in quotes)')
     parser.add_argument('-f', '--false_answers', type=str, nargs='+',
-                        help='False answer(s) (each answer enclosed in quotes)')
+                        help='false answer(s) (each answer enclosed in quotes)')
     group_2 = parser.add_mutually_exclusive_group()
-    group_2.add_argument('-n', '--number_of_questions', type=int, help='Number of questions to ask on quiz')
-    group_2.add_argument('-s', '--minimum_score', type=int, help='Minimum percentage to achieve on quiz')
+    group_2.add_argument('-n', '--number_of_questions', type=int, help='number of questions to ask on quiz')
+    group_2.add_argument('-s', '--minimum_score', type=int, help='minimum percentage to achieve on quiz')
     group_2.add_argument('-k', '--keep_asking', action='store_true',
-                         help='Keep asking quiz questions until told to stop')
+                         help='keep asking quiz questions until told to stop')
     args = parser.parse_args()
 
     # Print help message if no command line arguments are given
@@ -188,9 +246,10 @@ def cli_arguments() -> None:
         parser.print_help(sys.stderr)
         sys.exit(1)
 
+    # Start DB session
     session = start_session()
 
-    # Process command line arguments add, remove, print
+    # Process command line arguments
     if args.add:
         if add_question(session, args.class_, args.chapter, args.question, args.true_answer, args.false_answers):
             print('Question added successfully.')
@@ -205,12 +264,13 @@ def cli_arguments() -> None:
         print_quiz(session)
     elif args.quiz:
         if args.number_of_questions:
-            pass  # TODO
+            pass  # TODO: implement args.number
         elif args.minimum_score:
-            pass  # TODO
+            pass  # TODO: implement args.minimum_score
         elif args.keep_asking:
-            pass  # TODO
+            take_quiz_keep_asking(session)
 
+    # End DB session
     end_session(session)
 
     return
