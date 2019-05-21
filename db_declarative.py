@@ -66,7 +66,7 @@ class FalseAnswersTable(Base):
     __tablename__ = 'false_answer'
     id = Column(Integer, primary_key=True)
     question_id = Column(Integer, ForeignKey('question.id'))
-    answer = Column(String(250))
+    answer = Column(String(250), nullable=False)
     question = relationship("QuestionTable", back_populates='false_answers')
 
 

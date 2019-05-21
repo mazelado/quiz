@@ -38,7 +38,7 @@ def start_session() -> Session:
 
 
 def end_session(session: Session
-                ) -> bool:
+                ) -> None:
     """
     Closes database session.
 
@@ -47,7 +47,7 @@ def end_session(session: Session
     """
 
     session.close()
-    return True
+    return None
 
 
 def add_question(session: Session,
@@ -68,6 +68,10 @@ def add_question(session: Session,
     :param false_answers: list of text of false answers
     :return: True if database commit is successful
     """
+    # Validate parameters
+    if (not session) or (not class_name) or (not chapter) or (not question) or (not true_answer) or (not false_answers):
+        raise SystemExit
+
     new_question: Question = Question(class_name=class_name,
                                       chapter=chapter,
                                       question=question,
