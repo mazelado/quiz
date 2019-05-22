@@ -299,12 +299,12 @@ class Quiz(object):
         """
         q_index: int
         question: Question
-        r: str
+        r: str = ''
         for q_index, question in enumerate(self.questions):
-            r = 'Class: {:s}\nChapter: {:s}\n{:s}. {:s}\n'.format(question.class_name,
-                                                                  question.chapter,
-                                                                  str(q_index + 1),
-                                                                  question.question)
+            r += 'Class: {:s}\nChapter: {:s}\n{:s}. {:s}\n'.format(question.class_name,
+                                                                   question.chapter,
+                                                                   str(q_index + 1),
+                                                                   question.question)
             all_answers: List[str] = question.get_all_answers()
             a_index: int
             answer: str
