@@ -14,17 +14,17 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListWidget" name="listWidget">
+   <widget class="QListWidget" name="questions_listWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>40</y>
-      <width>256</width>
-      <height>192</height>
+      <width>512</width>
+      <height>371</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="questions_label">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -37,20 +37,20 @@
      <string>Questions:</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="listWidget_2">
+   <widget class="QListWidget" name="false_answers_listWidget">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>530</x>
       <y>220</y>
       <width>256</width>
       <height>192</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="false_answers_label">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>530</x>
       <y>200</y>
       <width>111</width>
       <height>17</height>
@@ -60,10 +60,10 @@
      <string>False Answers:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="true_answer_label">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>530</x>
       <y>140</y>
       <width>101</width>
       <height>17</height>
@@ -73,30 +73,30 @@
      <string>True Answer:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="true_answer_lineEdit">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>530</x>
       <y>160</y>
       <width>256</width>
       <height>25</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
+   <widget class="QLineEdit" name="class_lineEdit">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>530</x>
       <y>40</y>
       <width>256</width>
       <height>25</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QLabel" name="class_label">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>530</x>
       <y>20</y>
       <width>51</width>
       <height>17</height>
@@ -106,20 +106,20 @@
      <string>Class:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_3">
+   <widget class="QLineEdit" name="chapter_lineEdit">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>530</x>
       <y>100</y>
       <width>256</width>
       <height>25</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label_5">
+   <widget class="QLabel" name="chapter_label">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>530</x>
       <y>80</y>
       <width>71</width>
       <height>17</height>
@@ -142,6 +142,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>questions_listWidget</tabstop>
+  <tabstop>class_lineEdit</tabstop>
+  <tabstop>chapter_lineEdit</tabstop>
+  <tabstop>true_answer_lineEdit</tabstop>
+  <tabstop>false_answers_listWidget</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

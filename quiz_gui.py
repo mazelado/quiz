@@ -5,11 +5,22 @@ Created on 5/22/19 3:40 PM
 
 @author: matt
 """
-from PyQt5.QtWidgets import QApplication, QLabel
+import sys
 
-app = QApplication([])
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
-label = QLabel('Hello, World!')
-label.show()
+from quiz_uic import Ui_MainWindow
 
-app.exec_()
+
+def main():
+    app = QApplication(sys.argv)
+    window = QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(window)
+
+    window.show()
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
