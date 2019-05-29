@@ -9,10 +9,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
-from class_declarative import Question
-from db_declarative import Base, ClassTable, ChapterTable, QuestionTable, FalseAnswersTable
+from quiz_cli.class_declarative import Question
+from quiz_cli.db_declarative import Base, ClassTable, ChapterTable, QuestionTable, FalseAnswersTable
 
-engine = create_engine('sqlite:///quiz.db')
+engine = create_engine('sqlite:///quiz_cli.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)

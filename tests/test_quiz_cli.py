@@ -8,7 +8,7 @@ Created on 5/20/19 3:51 PM
 
 import pytest
 
-import quiz
+from quiz_cli import quiz
 
 
 class TestQuiz(object):
@@ -23,7 +23,7 @@ class TestQuiz(object):
         session = quiz.start_session()
 
         # Tests
-        assert session.bind.url.database == 'quiz.db'
+        assert session.bind.url.database == 'quiz_cli.db'
         assert session.bind.url.drivername == 'sqlite'
         # assert session.is_active is True
 
@@ -32,8 +32,8 @@ class TestQuiz(object):
 
     def test_end_session(self):
         # Setup
-        # session = quiz.start_session()
-        # quiz.end_session(session=session)
+        # session = quiz_cli.start_session()
+        # quiz_cli.end_session(session=session)
 
         # Tests
         # assert session.is_active is False
@@ -54,7 +54,7 @@ class TestQuiz(object):
          None)])
     def test_add_question(self, session, class_name, chapter, question, true_answer, false_answers):
         # Setup
-        # session = quiz.start_session()
+        # session = quiz_cli.start_session()
 
         # Tests
         with pytest.raises(SystemExit):

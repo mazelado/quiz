@@ -4,10 +4,9 @@
 Created on 5/9/19 7:55 AM
 
 @author: matt
-
-
 """
 import argparse
+import logging
 import sys
 from argparse import ArgumentParser, Namespace
 from typing import List
@@ -18,8 +17,8 @@ from sqlalchemy.orm import Session, Query
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy.orm.session import sessionmaker
 
-from class_declarative import Question, Quiz
-from db_declarative import ClassTable, ChapterTable, QuestionTable, FalseAnswersTable, Base
+from quiz_cli.class_declarative import Question, Quiz
+from quiz_cli.db_declarative import ClassTable, ChapterTable, QuestionTable, FalseAnswersTable, Base
 
 
 def start_session() -> Session:
@@ -84,6 +83,7 @@ def add_question(session: Session,
         session.add(new_class)
         session.commit()
     except (IntegrityError, InvalidRequestError):  # UNIQUE constraint failed, already exists in table
+        logging.warning('IntegrityError or InvalidRequestError - class already exists in ClassTable')
         session.rollback()
         new_class = session.query(ClassTable).filter(ClassTable.class_name == new_question.class_name).one()
 
@@ -93,6 +93,7 @@ def add_question(session: Session,
         session.add(new_chapter)
         session.commit()
     except (IntegrityError, InvalidRequestError):  # UNIQUE constraint failed, already exists in table
+        logging.warning('IntegrityError or InvalidRequestError - chapter already exists in ChapterTable')
         session.rollback()
         new_chapter = session.query(ChapterTable).filter(ChapterTable.chapter == new_question.chapter).one()
 
@@ -124,11 +125,11 @@ def delete_question(session: Session,
         query: Session = session.query(QuestionTable).filter(QuestionTable.question == question)
         question_rows: List[QuestionTable] = query.one()
     except NoResultFound:
-        print('ERROR: Question not found.')
+        logging.error('Question not found.')
         end_session(session)
         return False
     except MultipleResultsFound:
-        print('ERROR: Multiple questions found.')
+        logging.error('Multiple questions found.')
         end_session(session)
         return False
     else:
@@ -195,7 +196,7 @@ def print_quiz(session: Session,
                chapter: str
                ) -> None:
     """
-    Prints all questions in the form of a quiz.
+    Prints all questions in the form of a quiz_cli.
     
     :param session: DB session 
     :param class_name: string of class_name
@@ -218,7 +219,7 @@ def take_quiz_number_of_questions(session: Session,
                                   number_of_questions: int
                                   ) -> None:
     """
-    Take a quiz with a fixed number of questions.
+    Take a quiz_cli with a fixed number of questions.
 
     :param session: DB session
     :param class_name: string of class name
@@ -241,7 +242,7 @@ def take_quiz_keep_asking(session: Session,
                           chapter: str
                           ) -> None:
     """
-    Take a quiz, asking to continue after each question.
+    Take a quiz_cli, asking to continue after each question.
 
     :param session: DB session
     :param class_name: string of class name
@@ -265,12 +266,12 @@ def cli_arguments() -> None:
     :return:
     """
     # Parser setup
-    parser: ArgumentParser = argparse.ArgumentParser(description='Create a quiz.')
+    parser: ArgumentParser = argparse.ArgumentParser(description='Create a quiz_cli.')
     group_1 = parser.add_mutually_exclusive_group()
     group_1.add_argument('-a', '--add', action='store_true', help='add a new question')
     group_1.add_argument('-r', '--remove', action='store_true', help='remove an existing question')
     group_1.add_argument('-p', '--print', action='store_true', help='print all questions')
-    group_1.add_argument('-z', '--quiz', action='store_true', help='take a quiz')
+    group_1.add_argument('-z', '--quiz_cli', action='store_true', help='take a quiz_cli')
     parser.add_argument('-c', '--class', type=str, dest='class_', help='class (enclosed in quotes)')
     parser.add_argument('-C', '--chapter', type=str, help='chapter (enclosed in quotes)')
     parser.add_argument('-q', '--question', type=str, help='question (enclosed in quotes)')
@@ -278,9 +279,9 @@ def cli_arguments() -> None:
     parser.add_argument('-f', '--false_answers', type=str, nargs='+',
                         help='false answer(s) (each answer enclosed in quotes)')
     group_2 = parser.add_mutually_exclusive_group()
-    group_2.add_argument('-n', '--number_of_questions', type=int, help='number of questions to ask on quiz')
+    group_2.add_argument('-n', '--number_of_questions', type=int, help='number of questions to ask on quiz_cli')
     group_2.add_argument('-k', '--keep_asking', action='store_true',
-                         help='keep asking quiz questions until told to stop')
+                         help='keep asking quiz_cli questions until told to stop')
     args: Namespace = parser.parse_args()
 
     # Print help message if no command line arguments are given
@@ -334,4 +335,7 @@ def main() -> None:
 
 
 if __name__ == '__main__':
+    FORMAT = '%(levelname)s:%(asctime)s:%(message)s'
+    logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+
     main()

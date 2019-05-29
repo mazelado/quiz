@@ -70,6 +70,6 @@ class FalseAnswersTable(Base):
     question = relationship("QuestionTable", back_populates='false_answers')
 
 
-engine = create_engine('sqlite:///quiz.db')
+engine = create_engine('sqlite:///quiz_cli.db')
 
 Base.metadata.create_all(engine)

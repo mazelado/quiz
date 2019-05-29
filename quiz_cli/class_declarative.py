@@ -128,7 +128,7 @@ class Question(object):
 
 class Quiz(object):
     """
-    This is a class that is a collection of Question objects and additional methods to create a quiz.
+    This is a class that is a collection of Question objects and additional methods to create a quiz_cli.
     """
 
     def __init__(self,
@@ -259,10 +259,10 @@ class Quiz(object):
                   number_of_questions: int = None
                   ) -> None:
         """
-        Take a quiz
+        Take a quiz_cli
 
         :param ask_for_more: True to ask to continue after each question, False (default)
-        :param number_of_questions: Number of questions to ask to complete quiz
+        :param number_of_questions: Number of questions to ask to complete quiz_cli
         :return: None
         """
         self.correct = 0
