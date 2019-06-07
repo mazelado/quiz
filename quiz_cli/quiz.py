@@ -17,7 +17,8 @@ from sqlalchemy.orm import Session, Query
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy.orm.session import sessionmaker
 
-from quiz_cli.class_declarative import Question, Quiz
+from quiz_cli.Question import Question
+from quiz_cli.Quiz import Quiz
 from quiz_cli.db_declarative import ClassTable, ChapterTable, QuestionTable, FalseAnswersTable, Base
 
 
@@ -266,12 +267,12 @@ def cli_arguments() -> None:
     :return:
     """
     # Parser setup
-    parser: ArgumentParser = argparse.ArgumentParser(description='Create a quiz_cli.')
+    parser: ArgumentParser = argparse.ArgumentParser(description='Create a quiz.')
     group_1 = parser.add_mutually_exclusive_group()
     group_1.add_argument('-a', '--add', action='store_true', help='add a new question')
     group_1.add_argument('-r', '--remove', action='store_true', help='remove an existing question')
     group_1.add_argument('-p', '--print', action='store_true', help='print all questions')
-    group_1.add_argument('-z', '--quiz_cli', action='store_true', help='take a quiz_cli')
+    group_1.add_argument('-z', '--quiz', action='store_true', help='take a quiz')
     parser.add_argument('-c', '--class', type=str, dest='class_', help='class (enclosed in quotes)')
     parser.add_argument('-C', '--chapter', type=str, help='chapter (enclosed in quotes)')
     parser.add_argument('-q', '--question', type=str, help='question (enclosed in quotes)')
@@ -279,9 +280,9 @@ def cli_arguments() -> None:
     parser.add_argument('-f', '--false_answers', type=str, nargs='+',
                         help='false answer(s) (each answer enclosed in quotes)')
     group_2 = parser.add_mutually_exclusive_group()
-    group_2.add_argument('-n', '--number_of_questions', type=int, help='number of questions to ask on quiz_cli')
+    group_2.add_argument('-n', '--number_of_questions', type=int, help='number of questions to ask on quiz')
     group_2.add_argument('-k', '--keep_asking', action='store_true',
-                         help='keep asking quiz_cli questions until told to stop')
+                         help='keep asking quiz questions until told to stop')
     args: Namespace = parser.parse_args()
 
     # Print help message if no command line arguments are given

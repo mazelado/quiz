@@ -7,10 +7,11 @@ Created on 5/29/19 8:33 AM
 """
 from distutils.core import setup
 
-setup(
-    name='Quiz',
-    version='1.0dev',
-    packages=['quiz_cli', 'quiz_gui', ],
-    license='MIT License',
-    long_description=open('README.md').read(),
-)
+setup(name='Quiz',
+      version='1.0dev',
+      description='Quiz',
+      author='Matt Daleo',
+      packages=['quiz_cli', 'quiz_gui', ],
+      license='MIT License',
+      long_description=open('README.md').read(),
+      )
