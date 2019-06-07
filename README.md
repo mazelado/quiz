@@ -37,3 +37,4 @@ optional arguments:
   * [argparse](https://docs.python.org/3/library/argparse.html)
   * [typing](https://docs.python.org/3/library/typing.html)
 * [SQLAlchemy](https://www.sqlalchemy.org/)
+* [PyQt](https://www.riverbankcomputing.com/software/pyqt/intro)
